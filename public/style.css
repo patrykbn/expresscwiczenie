@@ -4,6 +4,8 @@ body {
     align-items: center;
     justify-content: center;
     margin: 0;
+    font-family: Arial, sans-serif;
+    padding: 20px;
     h1 {
         text-align: center;
     }
@@ -11,5 +13,9 @@ body {
         object-fit: contain;
         max-width: 450px;
         max-height: 550px;
+    }
+    .content {
+        max-width: 800px;
+        margin: auto;
     }
 }
