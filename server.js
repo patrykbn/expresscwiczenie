@@ -1,12 +1,29 @@
 const express = require('express');
 const path = require('path');
 const hbs = require('express-handlebars');
+const multer = require('multer');
 
 const app = express();
 app.engine('.hbs', hbs());
 app.set('view engine', '.hbs');
 
 app.use(express.static(path.join(__dirname, '/public')));
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
+const upload = multer({
+    limits: {filesize: 3*1024*1024},
+    fileFilter: (req, file, cb) => {
+        const filetypes = /jpeg|jpg|png|gif/;
+        const mimetype = filetypes.test(file.mimetype);
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+        if (mimetype && extname) {
+            return cb(null, true);
+          } else {
+            cb(new Error('Only .png, .jpg, .jpeg, and .gif files are allowed!'));
+        }
+    }
+})
 
 app.use((req, res, next) => {
     if (req.path.startsWith('/user')) {
@@ -41,6 +58,18 @@ app.get('/info', (req, res) => {
 
 app.get('/contact', (req, res) => {
     res.render('contact');
+});
+
+app.post('/contact/send-message', upload.single('design'), ( req,res ) => {
+    const { author, sender, title, message, design} = req.body;
+    const file = req.file;
+
+    if(author && sender && title && message && file) {
+        const fileName = file.originalname;
+        res.render('contact', { isSent: true, fileName: fileName });
+    } else {
+        res.render('contact', { isError: true })
+    }
 });
 
 app.get('/style.css', (req, res) => {
